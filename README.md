@@ -1,5 +1,5 @@
-Passerelle connector to communicate with IADELIB
-================================================
+Passerelle connector with iA.Delib
+==================================
 
 Installation
 ------------
@@ -16,31 +16,7 @@ Usage
 
  - create and configure new connector
    - Title/description: whatever you want
-   - Certificate check: uncheck if the service has no valid certificate
 
  - test service by clicking on the available links
-   - the /testConnection/ endpoint try to establish a connection with IA DELIB
-   - the /test_createItem/ endpoint try to create a new point in IA DELIB
-
-
-
-Usage in w.c.s.
----------------
-
- - createItem
-   - url sample with get method
-     createItem?meetingConfigId=meeting-config-college&proposingGroupId=dirgen&title=Mon%20nouveau%20point&description=Ma%20nouvelle%20description&decision=Ma%20nouvelle%20decision
-
-   - wcs workflow action "call webservice"
-     URL : 
-         http://local-passerelle.example.net/passerelle-imio-ia-delib/ia-delib-connecteur/createItem
-     SEND POST DATA :      
-         proposingGroupId : dirgen
-         meetingConfigId : meeting-config-college
-         description : ="{} {} {} {} {}".format("Réservation de la salle :",form_var_salle,"par", form_var_prenom, form_var_nom)
-         title : My title
-         decision : My decision
-
-         extraAttrs : [{"key":"detailedDescription","value":"<p>{}</p>".format(form_var_user_description)}]
-      OR
-         detailedDescription : [form_var_user_description]
+   - the /test/ endpoint to test the connection with iA.Delib
+   - the /read-item/ endpoint to read a new point in iA.Delib
