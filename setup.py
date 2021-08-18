@@ -1,13 +1,14 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+version = "1.0.0"
 
 from setuptools import find_packages
 from setuptools import setup
 
 setup(
     name="passerelle-imio-ia-delib",
-    version="1.0.0",
+    version=version,
     author="iMio",
     author_email="support-ts@imio.be",
     packages=find_packages(),
