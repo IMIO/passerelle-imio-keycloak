@@ -12,7 +12,10 @@ from passerelle.utils.jsonresponse import APIError
 from requests.exceptions import ConnectionError
 
 
-class IImioIaDelib(BaseResource):
+class IADelibConnector(BaseResource):
+    """
+    Connecteur iA.Delib
+    """
     url = models.CharField(
         max_length=128,
         blank=True,
@@ -30,10 +33,10 @@ class IImioIaDelib(BaseResource):
         verbose_name="Mot de passe",
     )
     api_description = "Connecteur permettant d'intéragir avec une instance d'iA.Delib"
-    category = "Business Process Connectors"
+    category = "Connecteurs iMio"
 
     class Meta:
-        verbose_name = "iA.Delib"
+        verbose_name = "Connecteur iA.Delib"
 
     @property
     def session(self):

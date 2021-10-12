@@ -1,10 +1,7 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-version = "1.0.0"
-
 from setuptools import find_packages
 from setuptools import setup
+
+version = "1.0.1"
 
 setup(
     name="passerelle-imio-ia-delib",
@@ -18,7 +15,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.7",
     ],
-    url="https://dev.entrouvert.org/projects/imio/",
+    url="https://github.com/IMIO/passerelle-imio-ia-delib",
     install_requires=[
         "django>=2.2",
     ],
