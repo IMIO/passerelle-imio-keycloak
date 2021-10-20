@@ -90,8 +90,20 @@ class IADelibConnector(BaseResource):
         description="Tester un POST sur Delib local",
         perm="can_access",
     )
-    def create_item(self, request, post_data):
+    def create_item(self, request):
         url = f"{self.url}@item"  # Url et endpoint à contacter
+        post_data = json_loads(request.body)
+        post_data["__children__"] = [
+            {
+                "@type": "annex",
+                "title": post_data["annex"]["filename"],
+                "content_category": "annexe",
+                "file": {
+                    "data": post_data["annex"]["content"],
+                    "filename": post_data["annex"]["filename"]
+                }
+            }
+        ]
         try:
             response_json = self.session.post(
                 url,
