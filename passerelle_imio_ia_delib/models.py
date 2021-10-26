@@ -84,6 +84,36 @@ class IADelibConnector(BaseResource):
             )
         return response_json
 
+    def list_simple_files(self, fields, files):
+        result = []
+        for file in files:
+            if fields[file]:
+                result.append(fields[file])
+        return result
+
+    def list_files_of_blocs(self, fields, blocs_of_files):
+        result = []
+        for bloc_of_files in blocs_of_files:
+            if fields[bloc_of_files]:
+                for file in fields[f"{bloc_of_files}_raw"]:
+                    result.append(file['fichier'])
+        return result
+
+    def structure_annexes(self, files):
+        result = []
+        for file in files:
+            structured_file = {
+                "@type": "annex",
+                "title": file["filename"],
+                "content_category": "annexe",
+                "file": {
+                    "data": file["content"],
+                    "filename": file["filename"]
+                }
+            }
+            result.append(structured_file)
+        return result
+
     @endpoint(
         methods=["post"],
         name="create-item",
@@ -93,17 +123,11 @@ class IADelibConnector(BaseResource):
     def create_item(self, request):
         url = f"{self.url}@item"  # Url et endpoint à contacter
         post_data = json_loads(request.body)
-        post_data["__children__"] = [
-            {
-                "@type": "annex",
-                "title": post_data["annex"]["filename"],
-                "content_category": "annexe",
-                "file": {
-                    "data": post_data["annex"]["content"],
-                    "filename": post_data["annex"]["filename"]
-                }
-            }
-        ]
+        demand = requests.get(post_data['api_url'], auth=('passerelle_test', 'dd837276-fef3-475d-909b-3410a2893d68'), headers={"Accept": "application/json"})
+        fields = demand.json()['fields']
+        annexes = self.list_simple_files(fields, post_data['simple_files'])
+        annexes.extend(self.list_files_of_blocs(fields, post_data['blocs_of_files']))
+        post_data["__children__"] = self.structure_annexes(annexes)
         try:
             response_json = self.session.post(
                 url,
