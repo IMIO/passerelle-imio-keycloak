@@ -123,9 +123,10 @@ class IADelibConnector(BaseResource):
     def create_item(self, request):
         url = f"{self.url}@item"  # Url et endpoint à contacter
         post_data = json_loads(request.body)
-        demand = requests.get(post_data['api_url'], auth=('passerelle_test', 'dd837276-fef3-475d-909b-3410a2893d68'), headers={"Accept": "application/json"})
+        demand = requests.get(post_data['api_url'], auth=(self.username, self.password), headers={"Accept": "application/json"})
         fields = demand.json()['fields']
         annexes = self.list_simple_files(fields, post_data['simple_files'])
+        annexes.extend(self.list_simple_files(demand.json()['workflow']['fields'], post_data['workflow_files']))
         annexes.extend(self.list_files_of_blocs(fields, post_data['blocs_of_files']))
         post_data["__children__"] = self.structure_annexes(annexes)
         try:

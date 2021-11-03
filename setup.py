@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-version = "1.0.4"
+version = "1.0.5"
 
 setup(
     name="passerelle-imio-ia-delib",
