@@ -1,12 +1,12 @@
 from builtins import str
 
+import json
 import requests
 from django.db import models
 from django.http import Http404
 from django.http import HttpResponse
 from django.urls import reverse
 from passerelle.base.models import BaseResource
-from passerelle.compat import json_loads
 from passerelle.utils.api import endpoint
 from passerelle.utils.jsonresponse import APIError
 from requests.exceptions import ConnectionError
@@ -122,7 +122,7 @@ class IADelibConnector(BaseResource):
     )
     def create_item(self, request):
         url = f"{self.url}@item"  # Url et endpoint à contacter
-        post_data = json_loads(request.body)
+        post_data = json.loads(request.body)
         demand = requests.get(post_data['api_url'], auth=(self.username, self.password), headers={"Accept": "application/json"})
         fields = demand.json()['fields']
         annexes = self.list_simple_files(fields, post_data['simple_files'])
