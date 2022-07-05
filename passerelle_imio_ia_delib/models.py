@@ -121,14 +121,21 @@ class IADelibConnector(BaseResource):
         perm="can_access",
     )
     def create_item(self, request):
+        files_keys = ["simple_files", "workflow_files", "blocs_of_files"]
         url = f"{self.url}@item"  # Url et endpoint à contacter
         post_data = json.loads(request.body)
         demand = requests.get(post_data['api_url'], auth=(self.username, self.password), headers={"Accept": "application/json"})
-        fields = demand.json()['fields']
-        annexes = self.list_simple_files(fields, post_data['simple_files'])
-        annexes.extend(self.list_simple_files(demand.json()['workflow']['fields'], post_data['workflow_files']))
-        annexes.extend(self.list_files_of_blocs(fields, post_data['blocs_of_files']))
-        post_data["__children__"] = self.structure_annexes(annexes)
+        if len([x for x in post_data.keys() if x in files_keys]) > 0:
+            fields = demand.json()['fields']
+            annexes = []
+            if "simple_files" in post_data.keys():
+                annexes.extend(self.list_simple_files(fields, post_data['simple_files']))
+            if "workflow_files" in post_data.keys():
+                annexes.extend(self.list_simple_files(demand.json()['workflow']['fields'], post_data['workflow_files']))
+            if "blocs_of_files" in post_data.keys():
+                annexes.extend(self.list_files_of_blocs(fields, post_data['blocs_of_files']))
+            if len(annexes) > 0:
+                post_data["__children__"] = self.structure_annexes(annexes)
         try:
             response_json = self.session.post(
                 url,
