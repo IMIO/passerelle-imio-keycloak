@@ -84,6 +84,25 @@ class IADelibConnector(BaseResource):
             )
         return response_json
 
+    @endpoint(
+        methods=["get"],
+        name="search-items",
+        description="GET @search sur Delib",
+        long_description="Prend un dictionnaire et renvoie une liste d'items",
+        perm="can_access",
+    )
+    def search_items(self, request, **kwargs):
+        url = f"{self.url}@search"  # Url et endpoint à contacter
+        params = kwargs
+        try:
+            response_json = self.session.get(url, params=params).json()
+        except Exception as e:
+            raise APIError(
+                str(e),
+                http_status=405,
+            )
+        return response_json
+
     def list_simple_files(self, fields, files):
         result = []
         for file in files:
