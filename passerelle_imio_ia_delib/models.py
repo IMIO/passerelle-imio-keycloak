@@ -34,6 +34,7 @@ class IADelibConnector(BaseResource):
     )
     api_description = "Connecteur permettant d'intéragir avec une instance d'iA.Delib"
     category = "Connecteurs iMio"
+    files_keys = ["simple_files", "workflow_files", "blocs_of_files"]
 
     class Meta:
         verbose_name = "Connecteur iA.Delib"
@@ -133,6 +134,18 @@ class IADelibConnector(BaseResource):
             result.append(structured_file)
         return result
 
+
+    def get_annexes(self, post_data, demand):
+        fields = demand.json()['fields']
+        annexes = []
+        if "simple_files" in post_data.keys():
+            annexes.extend(self.list_simple_files(fields, post_data['simple_files']))
+        if "workflow_files" in post_data.keys():
+            annexes.extend(self.list_simple_files(demand.json()['workflow']['fields'], post_data['workflow_files']))
+        if "blocs_of_files" in post_data.keys():
+            annexes.extend(self.list_files_of_blocs(fields, post_data['blocs_of_files']))
+        return annexes
+
     @endpoint(
         methods=["post"],
         name="create-item",
@@ -140,19 +153,16 @@ class IADelibConnector(BaseResource):
         perm="can_access",
     )
     def create_item(self, request):
-        files_keys = ["simple_files", "workflow_files", "blocs_of_files"]
+        files_keys = self.files_keys
         url = f"{self.url}@item"  # Url et endpoint à contacter
         post_data = json.loads(request.body)
-        demand = requests.get(post_data['api_url'], auth=(self.username, self.password), headers={"Accept": "application/json"})
+        demand = requests.get(
+            post_data['api_url'],
+            auth=(self.username, self.password),
+            headers={"Accept": "application/json"}
+        )
         if len([x for x in post_data.keys() if x in files_keys]) > 0:
-            fields = demand.json()['fields']
-            annexes = []
-            if "simple_files" in post_data.keys():
-                annexes.extend(self.list_simple_files(fields, post_data['simple_files']))
-            if "workflow_files" in post_data.keys():
-                annexes.extend(self.list_simple_files(demand.json()['workflow']['fields'], post_data['workflow_files']))
-            if "blocs_of_files" in post_data.keys():
-                annexes.extend(self.list_files_of_blocs(fields, post_data['blocs_of_files']))
+            annexes = self.get_annexes(post_data, demand)
             if len(annexes) > 0:
                 post_data["__children__"] = self.structure_annexes(annexes)
         try:
@@ -167,3 +177,53 @@ class IADelibConnector(BaseResource):
                 http_status=405,
             )
         return response_json
+
+    @endpoint(
+        methods=["post"],
+        name="add-annexes",
+        description="POST @annex sur un item Delib",
+        long_description="Ajout de pièces jointes sur un élément existant de Délib",
+        perm="can_access",
+    )
+    def add_annexes(self, request):
+        files_keys = self.files_keys
+        post_data = json.loads(request.body)
+        url = f"{self.url}@annex/{post_data['UID']}"  # Url et endpoint à contacter
+        # Demande concernée
+        demand = requests.get(
+            post_data['api_url'],
+            auth=(self.username, self.password),
+            headers={"Accept": "application/json"}
+        )
+        if len([x for x in post_data.keys() if x in files_keys]) > 0:
+            annexes = self.get_annexes(post_data, demand)
+            if len(annexes) > 0:
+                structured_annexes = self.structure_annexes(annexes)
+                titles = ' '.join([annex['title'] for annex in structured_annexes])
+                self.logger.info(f"Début de l'envoi des documents {titles}")
+                reponses = {"data": []}
+                for annex in structured_annexes:
+                    self.logger.info(f"Send {annex['title']}")
+                    try:
+                        response = self.session.post(
+                            url,
+                            headers={"Content-Type": "application/json"},
+                            json=annex
+                        )
+                        reponses['data'].append(response.json())
+                    except Exception as e:
+                        self.logger.error(f"fail at {annex['title']} : {e}")
+                return reponses
+                #     self.logger.info(f"Envoi {annex['title']}")
+                #     self.add_job('add_annex', destination=url, annex=annex)
+                # return {'msg': 'Transfert planifié', 'err': 0}
+
+    def add_annex(self, destination, annex):
+        try:
+            response = self.session.post(
+                destination,
+                headers={"Content-Type": "application/json"},
+                json=annex
+            )
+        except:
+            self.logger.error(f"Error to send annex {annex['title']}")
