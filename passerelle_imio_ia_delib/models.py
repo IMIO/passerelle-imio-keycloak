@@ -129,9 +129,11 @@ class IADelibConnector(BaseResource):
     @endpoint(
         methods=["get"],
         name="search-items",
-        description="GET @search sur Delib",
-        long_description="Prend un dictionnaire et renvoie une liste d'items",
+        description="Faire une recherche dans iA.Delib",
+        long_description="Prend un dictionnaire et renvoie une liste de points ou de séances "
+                         "https://docs.imio.be/iadelib/webservices/acces_rest.html#search-get",
         perm="can_access",
+        display_category="Récupération de point",
     )
     def search_items(self, request, **kwargs):
         url = f"{self.url}@search"  # Url et endpoint à contacter
