@@ -47,11 +47,17 @@ class IADelibConnector(BaseResource):
         return session
 
     @endpoint(
+        methods=["get"],
+        name="test",
         perm="can_access",
         description="Valider la connexion entre iA.Delib et Publik",
+        long_description="Cette méthode permet de vérifier si les données de connexion renseignées pour accéder aux "
+                         "Web Services sont correctes et d’obtenir des informations sur les versions installées.",
+        display_order=0,
+        display_category="Test",
     )
     def test(self, request):
-        url = self.url  # Url et endpoint à contacter
+        url = f"{self.url}@infos"  # Url et endpoint à contacter
         return self.session.get(url).json()
 
     @endpoint(
@@ -116,7 +122,6 @@ class IADelibConnector(BaseResource):
             )
         return response_json
 
-
     @endpoint(
         methods=["get"],
         name="search-items",
@@ -165,7 +170,6 @@ class IADelibConnector(BaseResource):
             }
             result.append(structured_file)
         return result
-
 
     def get_annexes(self, post_data, demand):
         fields = demand.json()['fields']
