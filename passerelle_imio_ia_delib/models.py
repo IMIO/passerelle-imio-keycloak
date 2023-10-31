@@ -3,12 +3,14 @@ from builtins import str
 import json
 import requests
 from django.db import models
+from django.conf import settings
 from django.http import Http404
 from django.http import HttpResponse
 from django.urls import reverse
 from passerelle.base.models import BaseResource
 from passerelle.utils.api import endpoint
 from passerelle.utils.jsonresponse import APIError
+from passerelle.base.signature import sign_url
 from requests.exceptions import ConnectionError
 
 
@@ -45,6 +47,18 @@ class IADelibConnector(BaseResource):
         session.auth = (self.username, self.password)
         session.headers.update({"Accept": "application/json"})
         return session
+
+    def get_data_from_wcs(self, api_url):
+        if not getattr(settings, "KNOWN_SERVICES", {}).get("wcs"):
+            return
+        eservices = list(settings.KNOWN_SERVICES["wcs"].values())[0]
+        signed_forms_url = sign_url(
+            url=api_url,
+            key=eservices.get("secret"),
+        )
+        signed_forms_url_response = self.requests.get(signed_forms_url)
+        signed_forms_url_response.raise_for_status()
+        return signed_forms_url_response.json()
 
     @endpoint(
         methods=["get"],
@@ -202,11 +216,7 @@ class IADelibConnector(BaseResource):
         files_keys = self.files_keys
         url = f"{self.url}@item"  # Url et endpoint à contacter
         post_data = json.loads(request.body)
-        demand = requests.get(
-            post_data['api_url'],
-            auth=(self.username, self.password),
-            headers={"Accept": "application/json"}
-        )
+        demand = self.get_data_from_wcs(post_data["api_url"])
         if len([x for x in post_data.keys() if x in files_keys]) > 0:
             annexes = self.get_annexes(post_data, demand)
             if len(annexes) > 0:
