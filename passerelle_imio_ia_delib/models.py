@@ -87,6 +87,38 @@ class IADelibConnector(BaseResource):
 
     @endpoint(
         methods=["get"],
+        name="read-item-ts-id",
+        description="GET sur Delib avec un identifiant donner par TS",
+        parameters={
+            "external_id": {
+                "description": "Identifiant TS d'un Point",
+                "example_value": "12-350",
+            },
+            "config_id": {
+                "description": "Identifiant de la config de l'instance iA.Delib",
+                "example_value": "meeting-config-college",
+            },
+        },
+        perm="can_access",
+    )
+    def read_item_ts_id(self, request, external_id, config_id):
+        url = f"{self.url}@search"  # Url et endpoint à contacter
+        params = {
+            "externalIdentifier": external_id,
+            "config_id": config_id,
+        }
+        try:
+            response_json = self.session.get(url, params=params).json()
+        except Exception as e:
+            raise APIError(
+                str(e),
+                http_status=405,
+            )
+        return response_json
+
+
+    @endpoint(
+        methods=["get"],
         name="search-items",
         description="GET @search sur Delib",
         long_description="Prend un dictionnaire et renvoie une liste d'items",
@@ -149,7 +181,7 @@ class IADelibConnector(BaseResource):
     @endpoint(
         methods=["post"],
         name="create-item",
-        description="Tester un POST sur Delib local",
+        description="Créer un point dans iA.Délib",
         perm="can_access",
     )
     def create_item(self, request):
