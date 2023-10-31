@@ -192,7 +192,11 @@ class IADelibConnector(BaseResource):
         methods=["post"],
         name="create-item",
         description="Créer un point dans iA.Délib",
+        long_description="Création d'un point dans iA.Délib à partir des infos du formulaire. Body nécessaire:"
+                         "api_url, config_id, proposingGroup, category, title, type. Body optionnel: motivation,"
+                         "decision, simple_files, blocs_of_files, workflow_files, externalIdentifier",
         perm="can_access",
+        display_category="Création de point",
     )
     def create_item(self, request):
         files_keys = self.files_keys
