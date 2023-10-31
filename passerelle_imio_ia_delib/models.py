@@ -64,7 +64,7 @@ class IADelibConnector(BaseResource):
         methods=["get"],
         name="read-item",
         description="Récupérer un point",
-        long_description="Récupérer un point iA.Délib via son UID",
+        long_description="Renvoie un point iA.Délib via son UID iA.Delib",
         parameters={
             "uid": {
                 "description": "Identifiant d'un Point",
@@ -108,6 +108,7 @@ class IADelibConnector(BaseResource):
             },
         },
         perm="can_access",
+        display_category="Récupération de point",
     )
     def read_item_ts_id(self, request, external_id, config_id):
         url = f"{self.url}@search"  # Url et endpoint à contacter
