@@ -96,7 +96,8 @@ class IADelibConnector(BaseResource):
     @endpoint(
         methods=["get"],
         name="read-item-ts-id",
-        description="GET sur Delib avec un identifiant donner par TS",
+        description="Récupérer un point avec un identifiant externe",
+        long_description="Renvoie un point iA.Délib en utilisant un identifiant externe",
         parameters={
             "external_id": {
                 "description": "Identifiant TS d'un Point",
