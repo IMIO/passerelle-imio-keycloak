@@ -227,9 +227,11 @@ class IADelibConnector(BaseResource):
     @endpoint(
         methods=["post"],
         name="add-annexes",
-        description="POST @annex sur un item Delib",
-        long_description="Ajout de pièces jointes sur un élément existant de Délib",
+        description="POST @annex sur un item iA.Delib",
+        long_description="Ajout de pièces jointes sur un élément existant de iA.Délib via son UID. Body nécessaire:"
+                         "api_url, UID. Body optionnel: simple_files, blocs_of_files, workflow_files",
         perm="can_access",
+        display_category="Création de point",
     )
     def add_annexes(self, request):
         files_keys = self.files_keys
