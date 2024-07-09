@@ -10,6 +10,7 @@ from passerelle.base.models import BaseResource
 from passerelle.utils.api import endpoint
 from passerelle.utils.jsonresponse import APIError
 from requests.exceptions import ConnectionError
+from requests import RequestException
 
 
 class IADelibConnector(BaseResource):
@@ -85,13 +86,24 @@ class IADelibConnector(BaseResource):
             "config_id": config_id,
         }  # UID de mon point à récupérer et configuration de l'instance iA.Delib.
         try:
-            response_json = self.session.get(url, params=params).json()
-        except Exception as e:
-            raise APIError(
-                str(e),
-                http_status=405,
-            )
-        return response_json
+            response = self.session.get(url, params=params)
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e}')
+            raise APIError(f'iA.Delib Connector Error: {e}')
+
+        json_response = None
+        try:
+            json_response = response.json()
+        except ValueError:
+            self.logger.warning('iA.Delib Connector Error: bad JSON response')
+            raise APIError('iA.Delib Connector Error: bad JSON response')
+
+        try:
+            response.raise_for_status()
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e} {json_response}')
+            raise APIError(f'iA.Delib Connector Error: {e} {json_response}')
+        return json_response
 
     @endpoint(
         methods=["get"],
@@ -118,13 +130,24 @@ class IADelibConnector(BaseResource):
             "config_id": config_id,
         }
         try:
-            response_json = self.session.get(url, params=params).json()
-        except Exception as e:
-            raise APIError(
-                str(e),
-                http_status=405,
-            )
-        return response_json
+            response = self.session.get(url, params=params)
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e}')
+            raise APIError(f'iA.Delib Connector Error: {e}')
+
+        json_response = None
+        try:
+            json_response = response.json()
+        except ValueError:
+            self.logger.warning('iA.Delib Connector Error: bad JSON response')
+            raise APIError('iA.Delib Connector Error: bad JSON response')
+
+        try:
+            response.raise_for_status()
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e} {json_response}')
+            raise APIError(f'iA.Delib Connector Error: {e} {json_response}')
+        return json_response
 
     @endpoint(
         methods=["get"],
@@ -139,13 +162,24 @@ class IADelibConnector(BaseResource):
         url = f"{self.url}@search"  # Url et endpoint à contacter
         params = kwargs
         try:
-            response_json = self.session.get(url, params=params).json()
-        except Exception as e:
-            raise APIError(
-                str(e),
-                http_status=405,
-            )
-        return response_json
+            response = self.session.get(url, params=params)
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e}')
+            raise APIError(f'iA.Delib Connector Error: {e}')
+
+        json_response = None
+        try:
+            json_response = response.json()
+        except ValueError:
+            self.logger.warning('iA.Delib Connector Error: bad JSON response')
+            raise APIError('iA.Delib Connector Error: bad JSON response')
+
+        try:
+            response.raise_for_status()
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e} {json_response}')
+            raise APIError(f'iA.Delib Connector Error: {e} {json_response}')
+        return json_response
 
     def list_simple_files(self, fields, files):
         result = []
@@ -212,17 +246,28 @@ class IADelibConnector(BaseResource):
             if len(annexes) > 0:
                 post_data["__children__"] = self.structure_annexes(annexes)
         try:
-            response_json = self.session.post(
+            response = self.session.post(
                 url,
                 headers={"Content-Type": "application/json"},
                 json=post_data,
-            ).json()
-        except Exception as e:
-            raise APIError(
-                str(e),
-                http_status=405,
             )
-        return response_json
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e}')
+            raise APIError(f'iA.Delib Connector Error: {e}')
+
+        json_response = None
+        try:
+            json_response = response.json()
+        except ValueError:
+            self.logger.warning('iA.Delib Connector Error: bad JSON response')
+            raise APIError('iA.Delib Connector Error: bad JSON response')
+
+        try:
+            response.raise_for_status()
+        except RequestException as e:
+            self.logger.warning(f'iA.Delib Connector Error: {e} {json_response}')
+            raise APIError(f'iA.Delib Connector Error: {e} {json_response}')
+        return json_response
 
     @endpoint(
         methods=["post"],
