@@ -184,14 +184,14 @@ class IADelibConnector(BaseResource):
     def list_simple_files(self, fields, files):
         result = []
         for file in files:
-            if fields[file]:
+            if fields.get(file):
                 result.append(fields[file])
         return result
 
     def list_files_of_blocs(self, fields, blocs_of_files):
         result = []
         for bloc_of_files in blocs_of_files:
-            if fields[bloc_of_files]:
+            if fields.get(bloc_of_files):
                 for file in fields[f"{bloc_of_files}_raw"]:
                     result.append(file['fichier'])
         return result
