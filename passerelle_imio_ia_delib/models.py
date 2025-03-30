@@ -288,7 +288,7 @@ class IADelibConnector(BaseResource):
         )
         annexes = []
         # Only files in key files_keys
-        if send_files and len([x for x in post_data.keys() if x in files_keys]) > 0:
+        if send_files and len([x for x in post_data.keys() if x in files_keys and post_data.get(x)]) > 0:
             annexes = self.get_annexes(post_data, demand)
         # All Files
         elif send_files:
@@ -341,7 +341,7 @@ class IADelibConnector(BaseResource):
             headers={"Accept": "application/json"},
         )
 
-        if len([x for x in post_data.keys() if x in files_keys]) > 0:
+        if len([x for x in post_data.keys() if x in files_keys and post_data.get(x)]) > 0:
             annexes = self.get_annexes(post_data, demand)
         else:
             annexes = self.get_all_files(demand, key="content_is_base64")
