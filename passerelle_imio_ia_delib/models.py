@@ -292,7 +292,7 @@ class IADelibConnector(BaseResource):
             annexes = self.get_annexes(post_data, demand)
         # All Files
         elif send_files:
-            annexes = self.get_all_files(demand, key="content_is_base64")
+            annexes = self.get_all_files(demand.json(), key="content_is_base64")
             if len(annexes) > 0:
                 annexes = self.remove_duplicates_files(annexes)
         if len(annexes) > 0:
@@ -344,7 +344,7 @@ class IADelibConnector(BaseResource):
         if len([x for x in post_data.keys() if x in files_keys and post_data.get(x)]) > 0:
             annexes = self.get_annexes(post_data, demand)
         else:
-            annexes = self.get_all_files(demand, key="content_is_base64")
+            annexes = self.get_all_files(demand.json(), key="content_is_base64")
             if len(annexes) > 0:
                 annexes = self.remove_duplicates_files(annexes)
         if len(annexes) > 0:
