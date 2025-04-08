@@ -137,3 +137,113 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
         return {"data": r.json()}
+
+    @endpoint(
+        methods=["post"],
+        name="update-user",
+        perm='can_access',
+        description="Mettre à jour un utilisateur",
+        long_description="Mettre à jour un utilisateur",
+        display_order=4,
+        display_category="User",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            }
+        }
+    )
+    def update_user(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {
+            "Authorization": "Bearer " + token,
+            "Content-type": "application/json"
+        }
+        data = json.loads(request.body)
+        data = {key: value for key, value in data.items() if value}
+        r = requests.put(url=url, headers=headers, data=json.dumps(data))
+        return r # status 204 ok
+
+    @endpoint(
+        methods=["post"],
+        name="create-user",
+        perm='can_access',
+        description="Créer un utilisateur",
+        long_description="Créer un utilisateur",
+        display_order=5,
+        display_category="User",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            },
+            "central_realm": {
+                "description": "Realm 'Central'",
+                "example_value": "central",
+            }
+        }
+    )
+    def create_user(self, request, realm, user_id, central_realm=None):
+        """
+            "username": "drstranger@marvel.com",
+            "enabled": True,
+            "emailVerified": True,
+            "firstName": "Stephen",
+            "lastName": "Strange",
+            "email": "drstranger@marvel.com"
+        """
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {
+            "Authorization": "Bearer " + token,
+            "Content-type": "application/json"
+        }
+        r = requests.post(url=url, headers=headers, data=request.body)
+        global_response = {"original realm": r}
+        if central_realm:
+            url = f"{self.url}admin/realms/{central_realm}/users/{user_id}"
+            r = requests.post(url=url, headers=headers, data=request.body)
+            global_response["central realm"] = r
+        return global_response #status 201 ok
+
+    def get_user_groups(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.get(url=url, headers=headers)
+        return {"data": r.json()}
+
+    @endpoint(
+        methods=["get"],
+        name="read-user-id",
+        perm='can_access',
+        description="Récupérer les types de connection d'un utilisateur",
+        long_description="Récupérer les types de connection d'un utilisateur",
+        display_order=3,
+        display_category="User",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            }
+        }
+    )
+    def get_user_credentials(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/credentials"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.get(url=url, headers=headers)
+        return {"data": r.json()}
