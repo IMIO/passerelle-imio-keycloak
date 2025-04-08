@@ -1,14 +1,14 @@
-Passerelle connector with iA.Delib
+Passerelle connector with Keycloak
 ==================================
 
 Installation
 ------------
 
  - add to Passerelle installed apps settings:
-   INSTALLED_APPS += ('passerelle_imio_ia_delib',)
+   INSTALLED_APPS += ('passerelle_imio_keycloak,)
 
  - enable module:
-   PASSERELLE_APP_PASSERELLE_IMIO_IA_DELIB_ENABLED = True
+   PASSERELLE_APP_PASSERELLE_IMIO_KEYCLAOK_ENABLED = True
 
 
 Usage
@@ -18,5 +18,5 @@ Usage
    - Title/description: whatever you want
 
  - test service by clicking on the available links
-   - the /test/ endpoint to test the connection with iA.Delib
-   - the /read-item/ endpoint to read a new point in iA.Delib
+   - the /test/ endpoint to test the connection with Keycloak
+   - the /read-item/ endpoint to read a new point in Keycloak
