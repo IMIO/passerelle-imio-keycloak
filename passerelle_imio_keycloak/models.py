@@ -53,7 +53,7 @@ class KeycloakConnector(BaseResource):
 
     @endpoint(
         methods=["post"],
-        name="Get Bearer Token",
+        name="get_bearer_token",
         perm="can_access",
         description="Récupérer le Bearer Token",
         long_description="Récupérer le Bearer Token.",
