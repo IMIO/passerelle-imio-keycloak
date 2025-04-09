@@ -56,12 +56,15 @@ class KeycloakConnector(BaseResource):
     )
     def access_token(self, request):
         url = f"{self.url}realms/master/protocol/openid-connect/token"  # Url et endpoint à contacter
-        payload = f'client_id={self.client_id}&password={self.password}&grant_type=password&username={self.username}'
+        payload = (
+            f'client_id={self.client_id}&password={self.password}&'
+            f'grant_type=password&username={self.username}'
+        )
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         r = requests.post(url=url, headers=headers, data=payload)
         access_token = r.json()["access_token"]
         return {"access_token": access_token}
-    
+
     @endpoint(
         methods=["get"],
         name="read-users",
@@ -197,7 +200,7 @@ class KeycloakConnector(BaseResource):
         data = json.loads(request.body)
         data = {key: value for key, value in data.items() if value}
         r = requests.put(url=url, headers=headers, data=json.dumps(data))
-        return r # status 204 ok
+        r.raise_for_status()
 
     @endpoint(
         methods=["post"],
