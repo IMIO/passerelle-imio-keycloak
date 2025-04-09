@@ -410,3 +410,33 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
         r = requests.put(url=url, headers=headers)
         r.raise_for_status()
+
+    @endpoint(
+        methods=["get"], 
+        name="delete-user-group",
+        perm='can_access',
+        description="Supprimer l'utilisateur d'un groupe",
+        long_description="Supprimer l'utilisateur d'un groupe",
+        display_order=6,
+        display_category="User",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "8c733129-bdbb-4268-a54e-6de65512cede",
+            },
+            "group_id": {
+                "description": "GUID du groupe",
+                "example_value": "ab220bdb-a4b7-4090-b631-0c6abea09293",
+            }
+        }
+    )
+    def add_user_group(self, request, realm, user_id, group_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups/{group_id}"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.delete(url=url, headers=headers)
+        r.raise_for_status()
