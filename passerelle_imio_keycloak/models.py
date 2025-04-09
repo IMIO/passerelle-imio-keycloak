@@ -322,7 +322,6 @@ class KeycloakConnector(BaseResource):
             "Content-Type": "application/json"
             }
         r = requests.post(url=url, headers=headers, data=request.body)
-        return {"data": r.json()}
 
     @endpoint(
         methods=["get"],
