@@ -182,17 +182,13 @@ class KeycloakConnector(BaseResource):
                 "description": "Tenant Keycloak/Collectivité",
                 "example_value": "imio",
             },
-            "user_id": {
-                "description": "GUID de l'utilisateur",
-                "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
-            },
             "central_realm": {
                 "description": "Realm 'Central'",
                 "example_value": "central",
             }
         }
     )
-    def create_user(self, request, realm, user_id, central_realm=None):
+    def create_user(self, request, realm, central_realm=None):
         """
             "username": "drstranger@marvel.com",
             "enabled": True,
@@ -201,7 +197,7 @@ class KeycloakConnector(BaseResource):
             "lastName": "Strange",
             "email": "drstranger@marvel.com"
         """
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users"  # Url et endpoint à contacter
         token = self.access_token(request)["access_token"]
         headers = {
             "Authorization": "Bearer " + token,
@@ -210,7 +206,7 @@ class KeycloakConnector(BaseResource):
         r = requests.post(url=url, headers=headers, data=request.body)
         global_response = {"original realm": r}
         if central_realm:
-            url = f"{self.url}admin/realms/{central_realm}/users/{user_id}"
+            url = f"{self.url}admin/realms/{central_realm}/users"
             r = requests.post(url=url, headers=headers, data=request.body)
             global_response["central realm"] = r
         return global_response #status 201 ok
@@ -224,10 +220,10 @@ class KeycloakConnector(BaseResource):
 
     @endpoint(
         methods=["get"],
-        name="read-user-id",
+        name="read-user-by-mail",
         perm='can_access',
-        description="Récupérer les types de connection d'un utilisateur",
-        long_description="Récupérer les types de connection d'un utilisateur",
+        description="Récupérer un utilisateur via son adresse mail",
+        long_description="Récupérer un utilisateur via son adresse mail",
         display_order=3,
         display_category="User",
         parameters={
@@ -235,14 +231,38 @@ class KeycloakConnector(BaseResource):
                 "description": "Tenant Keycloak/Collectivité",
                 "example_value": "imio",
             },
-            "user_id": {
-                "description": "GUID de l'utilisateur",
-                "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            "email": {
+                "description": "mail de l'utilisateur",
+                "example_value": "jordano.modesto@imio.be",
             }
         }
     )
-    def get_user_credentials(self, request, realm, user_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/credentials"  # Url et endpoint à contacter
+    def get_user_by_mail(self, request, realm, email):
+        url = f"{self.url}admin/realms/{realm}/users?email={email}"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.get(url=url, headers=headers)
+        return {"data": r.json()}
+
+    @endpoint(
+        methods=["get"],
+        name="read-groups",
+        perm='can_access',
+        description="Récupérer la liste des groupes d'un realm",
+        long_description="Récupérer la liste des groupes pour un realm donné",
+        display_order=0,
+        display_category="Group",
+        example_pattern="group/",
+        pattern="^group/$",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            }
+        }
+    )
+    def get_groups(self, request, realm):
+        url = f"{self.url}admin/realms/{realm}/groups"  # Url et endpoint à contacter
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
