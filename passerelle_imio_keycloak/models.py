@@ -434,7 +434,7 @@ class KeycloakConnector(BaseResource):
             }
         }
     )
-    def add_user_group(self, request, realm, user_id, group_id):
+    def delete_user_group(self, request, realm, user_id, group_id):
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups/{group_id}"  # Url et endpoint à contacter
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
