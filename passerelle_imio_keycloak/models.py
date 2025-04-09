@@ -382,7 +382,7 @@ class KeycloakConnector(BaseResource):
         r.raise_for_status()
 
     @endpoint(
-        methods=["post"],
+        methods=["post"], # Fonctionne avec get (IT) mais on test ça côté TS avec un post
         name="add-user-group",
         perm='can_access',
         description="Ajouter un utilisateur dans un groupe",
@@ -410,4 +410,3 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
         r = requests.put(url=url, headers=headers)
         r.raise_for_status()
-        self.logger.info(f"Utilisateur {user_id} ajouté au groupe {group_id}")
