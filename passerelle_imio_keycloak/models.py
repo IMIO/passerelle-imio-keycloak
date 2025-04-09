@@ -197,7 +197,7 @@ class KeycloakConnector(BaseResource):
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.post(url=url, headers=headers, data=request.body)
-        return r #status 201 ok
+        r.raise_for_status()
 
     def get_user_groups(self, request, realm, user_id):
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups"  # Url et endpoint à contacter
@@ -306,6 +306,11 @@ class KeycloakConnector(BaseResource):
     )
 
     def create_idp_link(self, request, realm, user_id):
+        """
+            "identityProvider": "imio",
+            "userId": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            "userName": "drstranger@marvel.com"
+        """
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
