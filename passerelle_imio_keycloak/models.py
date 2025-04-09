@@ -139,12 +139,42 @@ class KeycloakConnector(BaseResource):
         return {"data": r.json()}
 
     @endpoint(
+        methods=["get"],
+        name="delete-user-credential",
+        perm='can_access',
+        description="Supprimer un type de connexion d'un utilisateur",
+        long_description="Supprimer un type de connexion d'un utilisateur",
+        display_order=4,
+        display_category="User",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            },
+            "credential_id": {
+                "description": "GUID du credential",
+                "example_value": "98e95a9c-236d-4d1b-af70-e90a95248ecc",
+            }
+        }
+    )
+    def delete_user_credential(self, request, realm, user_id, credential_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/credentials/{credential_id}"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.delete(url=url, headers=headers)
+        r.raise_for_status()
+
+    @endpoint(
         methods=["post"],
         name="update-user",
         perm='can_access',
         description="Mettre à jour un utilisateur",
         long_description="Mettre à jour un utilisateur",
-        display_order=4,
+        display_order=5,
         display_category="User",
         parameters={
             "realm": {
@@ -175,7 +205,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Créer un utilisateur",
         long_description="Créer un utilisateur",
-        display_order=5,
+        display_order=6,
         display_category="User",
         parameters={
             "realm": {
@@ -212,7 +242,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Récupérer un utilisateur via son adresse mail",
         long_description="Récupérer un utilisateur via son adresse mail",
-        display_order=3,
+        display_order=7,
         display_category="User",
         parameters={
             "realm": {
@@ -262,7 +292,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Supprimer un utilisateur d'un realm",
         long_description="Supprimer un utilisateur d'un realm",
-        display_order=5,
+        display_order=8,
         display_category="User",
         parameters={
             "realm": {
@@ -387,7 +417,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Ajouter un utilisateur dans un groupe",
         long_description="Ajouter un utilisateur dans un groupe",
-        display_order=5,
+        display_order=9,
         display_category="User",
         parameters={
             "realm": {
@@ -417,7 +447,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Supprimer l'utilisateur d'un groupe",
         long_description="Supprimer l'utilisateur d'un groupe",
-        display_order=6,
+        display_order=10,
         display_category="User",
         parameters={
             "realm": {
