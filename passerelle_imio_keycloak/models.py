@@ -317,7 +317,10 @@ class KeycloakConnector(BaseResource):
         """
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity/{provider_id}"
         token = self.access_token(request)["access_token"]
-        headers = {"Authorization": "Bearer " + token}
+        headers = {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+            }
         r = requests.post(url=url, headers=headers, data=request.body)
         return {"data": r.json()}
 
@@ -408,4 +411,4 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
         r = requests.put(url=url, headers=headers)
         r.raise_for_status()
-        self.logger.info (f"Utilisateur {user_id} ajouté au groupe {group_id}")
+        self.logger.info(f"Utilisateur {user_id} ajouté au groupe {group_id}")
