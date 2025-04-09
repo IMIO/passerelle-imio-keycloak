@@ -400,7 +400,6 @@ class KeycloakConnector(BaseResource):
             }
         }
     )
-
     def delete_idp_link(self, request, realm, user_id, provider_id):
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity/{provider_id}"
         token = self.access_token(request)["access_token"]
@@ -409,13 +408,39 @@ class KeycloakConnector(BaseResource):
         r.raise_for_status()
 
     @endpoint(
+        methods=["get"],
+        name="read-user-group",
+        perm='can_access',
+        description="Récupérer les groupes d'un utilisateur",
+        long_description="Récupérer les groupes d'un utilisateur",
+        display_order=2,
+        display_category="Group",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "8c733129-bdbb-4268-a54e-6de65512cede",
+            }
+        }
+    )
+    def read_user_group(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups"
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.get(url=url, headers=headers)
+        return {"data": r.json()}
+
+    @endpoint(
         # Fonctionne avec get (IT) mais on test ça côté TS avec un post
         methods=["post"],
         name="add-user-group",
         perm='can_access',
         description="Ajouter un utilisateur dans un groupe",
         long_description="Ajouter un utilisateur dans un groupe",
-        display_order=2,
+        display_order=3,
         display_category="Group",
         parameters={
             "realm": {
@@ -445,7 +470,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Supprimer l'utilisateur d'un groupe",
         long_description="Supprimer l'utilisateur d'un groupe",
-        display_order=3,
+        display_order=4,
         display_category="Group",
         parameters={
             "realm": {
