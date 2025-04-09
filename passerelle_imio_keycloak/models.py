@@ -301,17 +301,21 @@ class KeycloakConnector(BaseResource):
             "user_id": {
                 "description": "GUID de l'utilisateur",
                 "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            },
+            "provider_id": {
+                "description": "ID du fournisseur",
+                "example_value": "imio",
             }
         }
     )
 
-    def create_idp_link(self, request, realm, user_id):
+    def create_idp_link(self, request, realm, user_id, provider_id):
         """
             "identityProvider": "imio",
             "userId": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
             "userName": "drstranger@marvel.com"
         """
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity/"
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity/{provider_id}"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.post(url=url, headers=headers, data=request.body)
@@ -333,16 +337,12 @@ class KeycloakConnector(BaseResource):
             "user_id": {
                 "description": "GUID de l'utilisateur",
                 "example_value": "97cf8f01-fa69-4143-9836-b69765d8d5d3",
-            },
-            "provider_id": {
-                "description": "ID du fournisseur",
-                "example_value": "imio",
             }
         }
     )
 
-    def read_idp_links(self, request, realm, user_id, provider_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity/{provider_id}"
+    def read_idp_links(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
@@ -394,11 +394,11 @@ class KeycloakConnector(BaseResource):
             },
             "user_id": {
                 "description": "GUID de l'utilisateur",
-                "example_value": "dfe2571a-0d55-4e86-85a4-a708a356e1c8",
+                "example_value": "8c733129-bdbb-4268-a54e-6de65512cede",
             },
             "group_id": {
                 "description": "GUID du groupe",
-                "example_value": "dfe2571a-0d55-4e86-85a4-a708a356e1c8",
+                "example_value": "ab220bdb-a4b7-4090-b631-0c6abea09293",
             }
         }
     )
@@ -406,6 +406,6 @@ class KeycloakConnector(BaseResource):
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups/{group_id}"  # Url et endpoint à contacter
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
-        r = requests.post(url=url, headers=headers)
+        r = requests.put(url=url, headers=headers)
         r.raise_for_status()
-        return f"Utilisateur {user_id} ajouté au groupe {group_id}"
+        self.logger.info (f"Utilisateur {user_id} ajouté au groupe {group_id}")
