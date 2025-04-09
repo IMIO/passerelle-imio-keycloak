@@ -181,14 +181,10 @@ class KeycloakConnector(BaseResource):
             "realm": {
                 "description": "Tenant Keycloak/Collectivité",
                 "example_value": "imio",
-            },
-            "central_realm": {
-                "description": "Realm 'Central'",
-                "example_value": "central",
             }
         }
     )
-    def create_user(self, request, realm, central_realm=None):
+    def create_user(self, request, realm):
         """
             "username": "drstranger@marvel.com",
             "enabled": True,
@@ -199,17 +195,9 @@ class KeycloakConnector(BaseResource):
         """
         url = f"{self.url}admin/realms/{realm}/users"  # Url et endpoint à contacter
         token = self.access_token(request)["access_token"]
-        headers = {
-            "Authorization": "Bearer " + token,
-            "Content-type": "application/json"
-        }
+        headers = {"Authorization": "Bearer " + token}
         r = requests.post(url=url, headers=headers, data=request.body)
-        global_response = {"original realm": r}
-        if central_realm:
-            url = f"{self.url}admin/realms/{central_realm}/users"
-            r = requests.post(url=url, headers=headers, data=request.body)
-            global_response["central realm"] = r
-        return global_response #status 201 ok
+        return r #status 201 ok
 
     def get_user_groups(self, request, realm, user_id):
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups"  # Url et endpoint à contacter
@@ -266,4 +254,60 @@ class KeycloakConnector(BaseResource):
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
+        return {"data": r.json()}
+
+    @endpoint( #Méthode à revoir, ticket EO envoyé
+        methods=["get"],
+        name="delete-user",
+        perm='can_access',
+        description="Supprimer un utilisateur d'un realm",
+        long_description="Supprimer un utilisateur d'un realm",
+        display_order=5,
+        display_category="User",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "ca08978a-abc0-44ab-9ba0-32a76ff37dbd",
+            }
+        }
+    )
+    def delete_user(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}"  # Url et endpoint à contacter
+        token = self.access_token(request)["access_token"]
+        headers = {
+            "Authorization": "Bearer " + token        
+            }
+        r = requests.delete(url=url, headers=headers)
+        r.raise_for_status()
+        return r # status 204 ok
+
+    @endpoint(
+        methods=["post"],
+        name="create-idp-link",
+        perm='can_access',
+        description="Créer un lien d'identité pour un utilisateur",
+        long_description="Créer un lien d'identité pour un utilisateur",
+        display_order=6,
+        display_category="User",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "4d49f2eb-890d-47e9-8cb4-3910fc17b66b",
+            }
+        }
+    )
+
+    def create_idp_link(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity"
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.post(url=url, headers=headers, data=request.body)
         return {"data": r.json()}
