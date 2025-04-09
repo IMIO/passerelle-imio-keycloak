@@ -257,7 +257,7 @@ class KeycloakConnector(BaseResource):
         return {"data": r.json()}
 
     @endpoint( #Méthode à revoir, ticket EO envoyé
-        methods=["get"],
+        methods=["delete"],
         name="delete-user",
         perm='can_access',
         description="Supprimer un utilisateur d'un realm",
@@ -271,7 +271,7 @@ class KeycloakConnector(BaseResource):
             },
             "user_id": {
                 "description": "GUID de l'utilisateur",
-                "example_value": "ca08978a-abc0-44ab-9ba0-32a76ff37dbd",
+                "example_value": "c034662e-56a4-4dec-8ebd-ecf2bb75d3e7",
             }
         }
     )
@@ -283,7 +283,7 @@ class KeycloakConnector(BaseResource):
             }
         r = requests.delete(url=url, headers=headers)
         r.raise_for_status()
-        return r # status 204 ok
+
 
     @endpoint(
         methods=["post"],
@@ -291,12 +291,12 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Créer un lien d'identité pour un utilisateur",
         long_description="Créer un lien d'identité pour un utilisateur",
-        display_order=6,
-        display_category="User",
+        display_order=1,
+        display_category="IDP",
         parameters={
             "realm": {
                 "description": "Tenant Keycloak/Collectivité",
-                "example_value": "imio",
+                "example_value": "central",
             },
             "user_id": {
                 "description": "GUID de l'utilisateur",
@@ -316,3 +316,61 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
         r = requests.post(url=url, headers=headers, data=request.body)
         return {"data": r.json()}
+
+    @endpoint(
+        methods=["get"],
+        name="get-idp-link",
+        perm='can_access',
+        description="Récupérer la liste de liens d'identités pour un utilisateur",
+        long_description="Récupérer la liste de liens d'identités pour un utilisateur",
+        display_order=1,
+        display_category="IDP",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "central",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "97cf8f01-fa69-4143-9836-b69765d8d5d3",
+            }
+        }
+    )
+
+    def read_idp_links(self, request, realm, user_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity"
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.get(url=url, headers=headers)
+        return {"data": r.json()}
+
+    @endpoint(
+        methods=["get"],
+        name="delete-idp-link",
+        perm='can_access',
+        description="Supprime un lien d'identité pour un utilisateur",
+        long_description="Supprime un lien d'identité pour un utilisateur",
+        display_order=2,
+        display_category="IDP",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "central",
+            },
+            "user_id": {
+                "description": "GUID de l'utilisateur",
+                "example_value": "97cf8f01-fa69-4143-9836-b69765d8d5d3",
+            },
+            "provider_id": {
+                "description": "ID du fournisseur",
+                "example_value": "pltest2",
+            }
+        }
+    )
+
+    def delete_idp_link(self, request, realm, user_id, provider_id):
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity/{provider_id}"
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.delete(url=url, headers=headers)
+        r.raise_for_status()
