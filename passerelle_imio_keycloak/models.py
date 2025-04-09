@@ -55,10 +55,12 @@ class KeycloakConnector(BaseResource):
         display_category="Access",
     )
     def access_token(self, request):
-        url = f"{self.url}realms/master/protocol/openid-connect/token"  # Url et endpoint à contacter
+        url = f"{self.url}realms/master/protocol/openid-connect/token"
         payload = (
-            f'client_id={self.client_id}&password={self.password}&'
-            f'grant_type=password&username={self.username}'
+            f'client_id={self.client_id}&'
+            f'password={self.password}&'
+            f'grant_type=password&'
+            f'username={self.username}'
         )
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         r = requests.post(url=url, headers=headers, data=payload)
@@ -83,7 +85,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def get_users(self, request, realm):
-        url = f"{self.url}admin/realms/{realm}/users"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
@@ -109,7 +111,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def get_user_groups(self, request, realm, user_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
@@ -135,7 +137,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def get_user_credentials(self, request, realm, user_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/credentials"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/credentials"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
@@ -165,7 +167,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def delete_user_credential(self, request, realm, user_id, credential_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/credentials/{credential_id}"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/credentials/{credential_id}"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.delete(url=url, headers=headers)
@@ -191,7 +193,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def update_user(self, request, realm, user_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}"
         token = self.access_token(request)["access_token"]
         headers = {
             "Authorization": "Bearer " + token,
@@ -226,18 +228,11 @@ class KeycloakConnector(BaseResource):
             "lastName": "Strange",
             "email": "drstranger@marvel.com"
         """
-        url = f"{self.url}admin/realms/{realm}/users"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.post(url=url, headers=headers, data=request.body)
         r.raise_for_status()
-
-    def get_user_groups(self, request, realm, user_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups"  # Url et endpoint à contacter
-        token = self.access_token(request)["access_token"]
-        headers = {"Authorization": "Bearer " + token}
-        r = requests.get(url=url, headers=headers)
-        return {"data": r.json()}
 
     @endpoint(
         methods=["get"],
@@ -259,7 +254,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def get_user_by_mail(self, request, realm, email):
-        url = f"{self.url}admin/realms/{realm}/users?email={email}"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users?email={email}"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
@@ -283,13 +278,14 @@ class KeycloakConnector(BaseResource):
         }
     )
     def get_groups(self, request, realm):
-        url = f"{self.url}admin/realms/{realm}/groups"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/groups"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
         return {"data": r.json()}
 
-    @endpoint( #Méthode à revoir, ticket EO envoyé
+    @endpoint(
+        # Méthode à revoir, ticket EO envoyé
         methods=["delete"],
         name="delete-user",
         perm='can_access',
@@ -309,14 +305,13 @@ class KeycloakConnector(BaseResource):
         }
     )
     def delete_user(self, request, realm, user_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}"
         token = self.access_token(request)["access_token"]
         headers = {
             "Authorization": "Bearer " + token        
             }
         r = requests.delete(url=url, headers=headers)
         r.raise_for_status()
-
 
     @endpoint(
         methods=["post"],
@@ -341,7 +336,6 @@ class KeycloakConnector(BaseResource):
             }
         }
     )
-
     def create_idp_link(self, request, realm, user_id, provider_id):
         """
             "identityProvider": "imio",
@@ -353,15 +347,16 @@ class KeycloakConnector(BaseResource):
         headers = {
             "Authorization": "Bearer " + token,
             "Content-Type": "application/json"
-            }
+        }
         r = requests.post(url=url, headers=headers, data=request.body)
+        r.raise_for_status()
 
     @endpoint(
         methods=["get"],
         name="get-idp-link",
         perm='can_access',
-        description="Récupérer la liste de liens d'identités pour un utilisateur",
-        long_description="Récupérer la liste de liens d'identités pour un utilisateur",
+        description="Récupérer la liste de liens d'identités d'un utilisateur",
+        long_description="Récupérer la liste de liens d'identités d'un utilisateur",
         display_order=1,
         display_category="IDP",
         parameters={
@@ -375,7 +370,6 @@ class KeycloakConnector(BaseResource):
             }
         }
     )
-
     def read_idp_links(self, request, realm, user_id):
         url = f"{self.url}admin/realms/{realm}/users/{user_id}/federated-identity"
         token = self.access_token(request)["access_token"]
@@ -415,7 +409,8 @@ class KeycloakConnector(BaseResource):
         r.raise_for_status()
 
     @endpoint(
-        methods=["post"], # Fonctionne avec get (IT) mais on test ça côté TS avec un post
+        # Fonctionne avec get (IT) mais on test ça côté TS avec un post
+        methods=["post"],
         name="add-user-group",
         perm='can_access',
         description="Ajouter un utilisateur dans un groupe",
@@ -438,7 +433,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def add_user_group(self, request, realm, user_id, group_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups/{group_id}"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups/{group_id}"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.put(url=url, headers=headers)
@@ -468,7 +463,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def delete_user_group(self, request, realm, user_id, group_id):
-        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups/{group_id}"  # Url et endpoint à contacter
+        url = f"{self.url}admin/realms/{realm}/users/{user_id}/groups/{group_id}"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.delete(url=url, headers=headers)
