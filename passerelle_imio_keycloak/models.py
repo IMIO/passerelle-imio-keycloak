@@ -268,7 +268,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Récupérer la liste des groupes d'un realm",
         long_description="Récupérer la liste des groupes pour un realm donné",
-        display_order=0,
+        display_order=1,
         display_category="Group",
         example_pattern="group/",
         pattern="^group/$",
@@ -417,8 +417,8 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Ajouter un utilisateur dans un groupe",
         long_description="Ajouter un utilisateur dans un groupe",
-        display_order=9,
-        display_category="User",
+        display_order=2,
+        display_category="Group",
         parameters={
             "realm": {
                 "description": "Tenant Keycloak/Collectivité",
@@ -447,8 +447,8 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Supprimer l'utilisateur d'un groupe",
         long_description="Supprimer l'utilisateur d'un groupe",
-        display_order=10,
-        display_category="User",
+        display_order=3,
+        display_category="Group",
         parameters={
             "realm": {
                 "description": "Tenant Keycloak/Collectivité",
