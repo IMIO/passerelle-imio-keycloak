@@ -144,7 +144,7 @@ class KeycloakConnector(BaseResource):
         return {"data": r.json()}
 
     @endpoint(
-        methods=["get"],
+        methods=["delete"],
         name="delete-user-credential",
         perm='can_access',
         description="Supprimer un type de connexion d'un utilisateur",
@@ -378,7 +378,7 @@ class KeycloakConnector(BaseResource):
         return {"data": r.json()}
 
     @endpoint(
-        methods=["get"],
+        methods=["delete"],
         name="delete-idp-link",
         perm='can_access',
         description="Supprime un lien d'identité pour un utilisateur",
