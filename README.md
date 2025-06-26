@@ -8,7 +8,7 @@ Installation
    INSTALLED_APPS += ('passerelle_imio_keycloak,)
 
  - enable module:
-   PASSERELLE_APP_PASSERELLE_IMIO_KEYCLAOK_ENABLED = True
+   PASSERELLE_APP_PASSERELLE_IMIO_KEYCLOAK_ENABLED = True
 
 
 Usage
