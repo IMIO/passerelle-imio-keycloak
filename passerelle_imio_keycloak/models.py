@@ -85,7 +85,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def get_users(self, request, realm):
-        url = f"{self.url}admin/realms/{realm}/users"
+        url = f"{self.url}admin/realms/{realm}/users?max=99999"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
