@@ -200,7 +200,7 @@ class KeycloakConnector(BaseResource):
             "Content-type": "application/json"
         }
         data = json.loads(request.body)
-        data = {key: value for key, value in data.items() if value}
+        data = {key: value for key, value in data.items() if value is not None}
         r = requests.put(url=url, headers=headers, data=json.dumps(data))
         r.raise_for_status()
 
