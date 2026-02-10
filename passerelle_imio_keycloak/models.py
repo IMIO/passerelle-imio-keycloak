@@ -519,3 +519,83 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
         return {"data": r.json()}
+    
+    @endpoint(
+        methods=["get"],
+        name="realm-users-groups-aggregated",
+        perm="can_access",
+        description="Agrège users + groupes sur un seul endpoint",
+        long_description="Récupère tous les users, tous les groupes, et les membres de chaque groupe",
+        display_order=1,
+        display_category="Combo",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            }
+        }
+    )
+    def realm_users_groups_aggregated(self, request, realm):
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+
+        #  Récupérer tous les users du realm
+        users_url = f"{self.url}admin/realms/{realm}/users?max=99999"
+        r_users = requests.get(url=users_url, headers=headers)
+        r_users.raise_for_status()
+        users = r_users.json() or []
+        users_by_id = {u.get("id"): u for u in users if u.get("id")}
+
+        #  Récupérer tous les groupes du realm
+        groups_url = f"{self.url}admin/realms/{realm}/groups"
+        r_groups = requests.get(url=groups_url, headers=headers)
+        r_groups.raise_for_status()
+        groups = r_groups.json() or []
+
+        #  Récupérer les membres de chaque groupe, puis faire user_id -> groupes
+        user_groups = {}  
+
+        for g in groups:
+            group_id = g.get("id")
+            if not group_id:
+                continue
+
+            group_info = {"id": group_id, "name": g.get("name")}
+
+            members_url = f"{self.url}admin/realms/{realm}/groups/{group_id}/members"
+            r_members = requests.get(url=members_url, headers=headers)
+            r_members.raise_for_status()
+            members = r_members.json() or []
+
+            for m in members:
+                guid = m.get("id")
+                if not guid:
+                    continue
+                # join uniquement si l'user existe côté liste users
+                if guid not in users_by_id:
+                    continue
+
+                if guid not in user_groups:
+                    user_groups[guid] = []
+                user_groups[guid].append(group_info)
+
+        #  Matcher les users avec leurs groupes
+        matched_users = []
+        for guid, u in users_by_id.items():
+            matched_users.append({
+                "id": guid,
+                "username": u.get("username"),
+                "firstName": u.get("firstName"),
+                "lastName": u.get("lastName"),
+                "email": u.get("email"),
+                "groups": user_groups.get(guid, []),
+            })
+
+        return {
+            "data": matched_users,
+            "meta": {
+                "realm": realm,
+                "users_total": len(users),
+                "groups_total": len(groups),
+            },
+        }
