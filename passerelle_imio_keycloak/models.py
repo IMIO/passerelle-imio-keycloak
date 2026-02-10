@@ -493,3 +493,29 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
         r = requests.delete(url=url, headers=headers)
         r.raise_for_status()
+
+    @endpoint(
+        methods=["get"],
+        name="read-groups-members",
+        perm='can_access',
+        description="Récupérer membres d'un groupe",
+        long_description="Récupérer membres d'un groupe",
+        display_order=2,
+        display_category="Group",
+        parameters={
+            "realm": {
+                "description": "Tenant Keycloak/Collectivité",
+                "example_value": "imio",
+            },
+            "group_id": {
+                "description": "GUID du groupe",
+                "example_value": "ab220bdb-a4b7-4090-b631-0c6abea09293",
+            }
+        }
+    )
+    def read_groups_members(self, request, realm, group_id):
+        url = f"{self.url}admin/realms/{realm}/groups/{group_id}/members"
+        token = self.access_token(request)["access_token"]
+        headers = {"Authorization": "Bearer " + token}
+        r = requests.get(url=url, headers=headers)
+        return {"data": r.json()}
