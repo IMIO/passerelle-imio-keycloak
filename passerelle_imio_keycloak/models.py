@@ -500,7 +500,7 @@ class KeycloakConnector(BaseResource):
         perm='can_access',
         description="Récupérer membres d'un groupe",
         long_description="Récupérer membres d'un groupe",
-        display_order=2,
+        display_order=5,
         display_category="Group",
         parameters={
             "realm": {
