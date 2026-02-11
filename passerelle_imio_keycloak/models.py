@@ -588,6 +588,7 @@ class KeycloakConnector(BaseResource):
                 "firstName": u.get("firstName"),
                 "lastName": u.get("lastName"),
                 "email": u.get("email"),
+                "enabled": u.get("enabled"),
                 "groups": user_groups.get(guid, []),
             })
 
