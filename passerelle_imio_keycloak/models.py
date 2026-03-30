@@ -1,16 +1,8 @@
-from builtins import str
-
 import json
 import requests
 from django.db import models
-from django.http import Http404
-from django.http import HttpResponse
-from django.urls import reverse
 from passerelle.base.models import BaseResource
 from passerelle.utils.api import endpoint
-from passerelle.utils.jsonresponse import APIError
-from requests.exceptions import ConnectionError
-from requests import RequestException
 
 
 class KeycloakConnector(BaseResource):
@@ -41,6 +33,7 @@ class KeycloakConnector(BaseResource):
     )
     api_description = "Connecteur permettant d'intéragir avec Keycloak"
     category = "Connecteurs iMio"
+    MAX_RESULTS = 99999
 
     class Meta:
         verbose_name = "Connecteur Keycloak"
@@ -85,7 +78,7 @@ class KeycloakConnector(BaseResource):
         }
     )
     def get_users(self, request, realm):
-        url = f"{self.url}admin/realms/{realm}/users?max=99999"
+        url = f"{self.url}admin/realms/{realm}/users?max={self.MAX_RESULTS}"
         token = self.access_token(request)["access_token"]
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(url=url, headers=headers)
@@ -540,7 +533,7 @@ class KeycloakConnector(BaseResource):
         headers = {"Authorization": "Bearer " + token}
 
         #  Récupérer tous les users du realm
-        users_url = f"{self.url}admin/realms/{realm}/users?max=99999"
+        users_url = f"{self.url}admin/realms/{realm}/users?max={self.MAX_RESULTS}"
         r_users = requests.get(url=users_url, headers=headers)
         r_users.raise_for_status()
         users = r_users.json() or []
@@ -553,7 +546,7 @@ class KeycloakConnector(BaseResource):
         groups = r_groups.json() or []
 
         #  Récupérer les membres de chaque groupe, puis faire user_id -> groupes
-        user_groups = {}  
+        user_groups = {}
 
         for g in groups:
             group_id = g.get("id")
@@ -562,7 +555,7 @@ class KeycloakConnector(BaseResource):
 
             group_info = {"id": group_id, "name": g.get("name")}
 
-            members_url = f"{self.url}admin/realms/{realm}/groups/{group_id}/members"
+            members_url = f"{self.url}admin/realms/{realm}/groups/{group_id}/members?max={self.MAX_RESULTS}"
             r_members = requests.get(url=members_url, headers=headers)
             r_members.raise_for_status()
             members = r_members.json() or []
